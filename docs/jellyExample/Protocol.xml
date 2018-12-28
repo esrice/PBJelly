@@ -1,0 +1,8 @@
+<jellyProtocol>
+    <reference>/__PATH__/_TO_/jellyExample/data/reference/lambda.fasta</reference>  
+    <outputDir>/__PATH__/_TO_/jellyExample/</outputDir>
+    <blasr>-minMatch 8 -minPctIdentity 70 -bestn 1 -nCandidates 20 -maxScore -500 -nproc 4 -noSplitSubreads</blasr>
+    <input baseDir="/__PATH__/_TO_/jellyExample/data/reads/">
+        <job>filtered_subreads.fastq</job>
+    </input>
+</jellyProtocol>

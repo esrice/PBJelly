@@ -1,0 +1,123 @@
+Current Dev Version
+	Removed old executables:
+          MakeOverlapTable.py
+          MakeReciprocal.py
+          Polish.py
+          OLCAssembly.py
+          chunkyBlasr.py
+	
+	Added --reportContigs to spots so that you can see the contig created
+	that called your spot if you want. By default it's off.
+
+	Added downsampling to Honey.py asm instead of failing when too many
+	reads were present. - and only for Illumina reads
+
+	Added new parameters for minimum gap inflation size for Jelly 
+	Fixed an error where we weren't correctly using the -sa index for
+	Jelly mapping across all jobs
+	Corrected an error where single extend from 5' end captured gap
+	filling wasn't having the consensus bases correctly placed
+
+
+PBSuite_15.2.20.p1
+        Quick patch for bugs.
+        -- GAPLIMIT Exception is fixed
+        File "PBSuite_15.2.20/bin/Collection.py", line 181, in getSequence
+        if gapLen < self.GAPINFLATE:
+        AttributeError: FillingMetrics instance has no attribute 'GAPINFLATE'
+
+        Safety for sawriter
+        If sawriter wasn't in the environment, the setup stage executed 
+        silently when it should have raised errors. 
+        The mapping stage now ensures the reference.sa exists, if not, it's 
+        excluded from the blasr parameters. This will just make mapping 
+        slower, not crash.
+
+PBSuite_15.2.20
+
+    Utils 
+	Command Runner now actually kills timed out forked processes. 
+	Added bamToFastq.py and fixed bamToFastq so that it
+		reverse-compliments sequences
+	BamStat.py now has a prettier report and can read from sys.stdin
+		(e.g. samtools view input.bam 15:19428-19692 | BamStat.py)
+
+    PBHoney
+	Spots has been refactored to be faster, more informative, and a 
+		more accurate
+	Spots now calls a consensus and gets a more accurate breakpoint. 
+	Spots also reports strand counts
+	Spots also faster, though I also made a method that is optional 
+		to use that goes much slower but is much cleaner pysam code.
+	Spots now throws in genotype information 
+	Removed recallSpots.py.  this is now inside of Honey.py spots with 
+		--hon option
+	Extreme Multiprocessing -- PBHoney is now multiprocessed and has
+		splitting options with the --chrom parameter. 
+	Tails and spots checks sort order and throws up some warning
+	bampie now adds PG information to your output.tails.bam header
+	Tails now uses default buffer of 1kb
+	Tails now looks to see if Bread.anno == Bread.anno before clustering.
+	This should prevent the '*' complex behavior
+	Mapping through pie uses different defualt blasr parameters
+	Mapping through pie has utility for running the initial mapping step
+		including creating chunks for you (see docs for details)
+	Spots now has the option of producing a readFile
+	Spots doesn't allow MapQ below --minMapQ count for discovery or
+		refinement
+	ComplexResolver -- Overlapping tail events are often indicative of a
+		more complex sample structure. This program resolves those
+		break-points to find a non-local annotation of the sample's
+		structure
+	Tails is now more memory efficient by parsing per-chromosome
+	Spots/Force now uses sizes and a delta to and collapse for potentially
+		spurious matches
+	
+    	Spots is now a little faster thanks to the collapse described above
+    	Spots now reports a z-score for the significance of the intra-read
+        	discordance that led to the spot's evaluation
+    
+    PBJelly 
+	Setup no longer has the noRename option.
+	Fixed bug in Extraction.py when a networkx version number like "1.9.1"
+		would break the code
+	Added parameter to Collection.py so that the min-gap size (gapInflate)
+		can be set (by default it has been 25)
+
+ToDo/Coming Soon:
+	Complex Resolver Documentation
+	
+	Need to split when you make subdirectories for gaps.
+	
+    	Pie automatically loading unmapped reads into your .sam/.bam
+	Pie fails when a there are no tails to be mapped. Need to make sure
+	the output file is actually created. (See "No Tails" ... exit)
+	
+	Begin using pyvcf... I'll be outputing proper vcfs soon
+
+	Using SAM mate information properly (e.g. adding the fields for next)
+		PpPiPeIpIiIeEpEiEe
+	
+	Merging Spots/Tails Calling (keep modules separate, but allow a
+				     joint-calling procedure)
+	
+	Haplotyping 
+	
+	Easy/well documented Annotation Pipeline
+
+	Add tails to Annotation Pipeline
+	
+	Improve Force results format
+
+	All documentation needs to be improved. Honey is pretty complex now.
+
+	Honey asm downsampling needs to correctly choose 'best' reads instead of
+	random sample
+
+    	Honey asm fetch 
+        I need to fix the fetching logic for all but phrap - can i not pull
+        out that functionality? Also it's gotten kinda messy
+
+	I guess now that I fetch only around breakpoints, I don't really need 
+	the max-span parameter.
+	

@@ -1,0 +1,5 @@
+Created using 20x of an ecoli that had evolved away from the ecoli reference we use in pacbio production.
+
+There were three SVs that I had found through de novo assembly, Honey.py and manual curation. This svm is trained off of these sites vs some sample of the null (concordant) sequence.
+
+I need to talk to pacbio about whether the ecoli that is distributed with their SMRTAnalysis has been updated away from the 1655 MKG whatever ecoli.

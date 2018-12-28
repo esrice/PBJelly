@@ -1,0 +1,13 @@
+<jellyProtocol>
+    <reference>/FULL/PATH/TO__/PBJelly/data/reference/lambda.fasta</reference>  
+    <outputDir>/FULL/PATH/TO__/PBJelly/lambdaExample/</outputDir>
+    <cluster>
+        <command notes="For single node, multi-core machines" >${CMD} ${JOBNAME} 2> ${STDERR} 1> ${STDOUT} &amp;</command>
+        <command notes="For PBS/Moab">echo '${CMD}' | msub -N "${JOBNAME}" -o ${STDOUT} -e ${STDERR} -l nodes=1:ppn=8,mem=48000mb</command>
+        <nJobs>1</nJobs>
+    </cluster>
+    <blasr>-minMatch 8 -sdpTupleSize 8 -minPctIdentity 75 -bestn 1 -nCandidates 10 -maxScore -500 -nproc 8 -noSplitSubreads</blasr>
+    <input baseDir="/FULL/PATH/TO__/PBJelly/lambdaExample/data/reads/">
+        <job>pacbioReads.fasta</job>
+    </input>
+</jellyProtocol>

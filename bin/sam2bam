@@ -1,0 +1,41 @@
+#!/bin/bash
+
+usage="$(basename "$0") [-h] REF SAM
+
+Convert a sam to a bam file, sort the alignments, and index the results
+
+params:
+    -h  show this help text
+   REF  reference the bam uses
+   SAM  input sam file"
+
+while getopts ':h:' option; do
+  case "$option" in
+    h) echo "$usage"
+       exit
+       ;;
+   \?) printf "Error - illegal option: -%s\n" "$OPTARG" >&2
+       echo "$usage" >&2
+       exit 1
+       ;;
+  esac
+done
+
+if [ -z "$1" ];
+then
+    echo "Error - REF not specified" >&2
+    echo "$usage" >&2
+    exit 1
+fi;
+
+if [ -z "$2" ];
+then
+    echo "Error - SAM not specified" >&2
+    echo "$usage" >&2
+    exit 1
+fi;
+
+
+samtools view -bt $1 $2 | samtools sort - ${2%.*}.sort
+mv ${2%.*}.sort.bam ${2%.*}.bam
+samtools index ${2%.*}.bam

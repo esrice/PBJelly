@@ -1,0 +1,28 @@
+##fileformat=VCFv4.1
+##fileDate=20100501
+##reference=1000GenomesPilot-NCBI36
+##FILTER=<ID=LowQual,Description="Low quality">
+##FILTER=<ID=NoSpan,Description="No reads properly spanned for consensus building">
+##INFO=<ID=SVTYPE,Number=1,Type=String,Description="Type of structural variant">
+##INFO=<ID=SVLEN,Number=.,Type=Integer,Description="Difference in length between REF and ALT alleles">
+##INFO=<ID=END,Number=1,Type=Integer,Description="End position of the variant described in this record">
+##INFO=<ID=CIPOS,Number=2,Type=Integer,Description="Confidence interval around POS for imprecise variants">
+##INFO=<ID=CIEND,Number=2,Type=Integer,Description="Confidence interval around END for imprecise variants">
+##INFO=<ID=HOMLEN,Number=.,Type=Integer,Description="Length of base pair identical micro-homology at event breakpoints">
+##INFO=<ID=HOMSEQ,Number=.,Type=String,Description="Sequence of base pair identical micro-homology at event breakpoints">
+##ALT=<ID=DEL,Description="Deletion">
+##ALT=<ID=INS,Description="Insertion of sequence">
+##ALT=<ID=INV,Description="Inversion of sequence">
+##ALT=<ID=TLOC,Description="Tranlocation Breakpoints">
+##ALT=<ID=CNV,Description="Copy number variable region">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype quality">
+##FORMAT=<ID=COV,Number=1,Type=Integer,Description="Region Average Coverage">
+##FORMAT=<ID=ALT,Number=2,Type=Integer,Description="Number of variant reads per-strand (+,-)">
+##FORMAT=<ID=ALNID,Number=1,Type=Float,Description="Estimated consensus sequence identity">
+##FORMAT=<ID=MQF,Number=1,Type=Integer,Description="Number of reads filtered for low mapping quality">
+##FORMAT=<ID=CN,Number=1,Type=Integer,Description="Copy number genotype for imprecise events">
+##FORMAT=<ID=CNQ,Number=1,Type=Float,Description="Copy number genotype quality for imprecise events">
+##FORMAT=<ID=ZMW,Number=1,Type=Integer,Description="Number of ZMWs Supporing Variant">
+##FORMAT=<ID=RS,Number=1,Type=Integer,Description="Average length of remaining sequence between breakpoints">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	SAMPLE

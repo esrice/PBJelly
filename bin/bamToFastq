@@ -1,0 +1,63 @@
+#!/bin/bash
+
+usage="$(basename "$0") [-h] BAM <POS> 
+
+Use samtools and awk to extract fastq sequences from a bam
+
+params:
+    -h  show this help text
+   BAM  input bam file
+ <POS>  \`samtools view\` format of the location to grab reads from (optional)"
+
+
+while getopts ':h:' option; do
+  case "$option" in
+    h) echo "$usage"
+       exit
+       ;;
+   \?) printf "Error - illegal option: -%s\n" "$OPTARG" >&2
+       echo "$usage" >&2
+       exit 1
+       ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [ -z "$1" ];
+then
+    echo "Error - need BAM to view" >&2
+    echo "$usage" >&2
+    exit 1
+fi;
+bam=$1
+pos=$2
+if [ -z "$2" ];
+then
+    pos=""
+fi;
+
+#echo "ATCG" | tr -d "\n " | tr "[ATGCatgcNn]" "[TACGtacgNn]" | rev
+#samtools view $1 $pos | awk '{ if (and(16,$2) { } else {print "@" $1 "\n" $10 "\n+\n" $11}}'
+samtools view $bam $pos | awk '
+			BEGIN {
+  				j = n = split("A C G T", t)
+  				for (i = 0; ++i <= n;)
+    					map[t[i]] = t[j--]
+  			}
+			{
+				name = $1;
+				strand = and($2, 16);
+				seq = $10;
+				qual = $11;
+  				if (!strand) {
+					print "@" name "\n" seq "\n+\n" qual
+				} else {
+					print "@" name
+    					for (i = length(seq); i; i--)
+	  					printf "%s", map[substr(seq, i, 1)]
+					print "\n+"
+    					for (i = length(seq); i; i--)
+						printf "%s", substr(qual, i, 1)
+					print ""
+				}
+			}'

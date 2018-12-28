@@ -1,0 +1,45 @@
+Copyright (c) '2013 Baylor College of Medicine
+               Contributors: Adam English (english@bcm.edu)
+                Affiliation: Human Genome Sequencing Center
+                        URL: http://www.hgsc.bcm.tmc.edu/
+                             https://sourceforge.net/projects/pb-jelly/
+                             http://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0047768
+			     http://www.biomedcentral.com/1471-2105/15/180
+                   Citation: English, Adam C., Stephen Richards, Yi Han, Min Wang,
+                             Vanesa Vee, Jiaxin Qu, Xiang Qin, et al. "Mind the
+                             Gap: Upgrading Genomes with Pacific Biosciences RS
+                             Long-Read Sequencing Technology." PLoS ONE 7, no. 11
+                             (November 21, 2012): e47768.
+                             doi:10.1371/journal.pone.0047768.
+		   Citation: English, Adam C., William J. Salerno, Jeffery G.
+		   	     Reid. "PBHoney: identyfying genomic variants via
+			     long-read discordance and interrupted mapping."
+			     BMC Bioinformatics 2014, 15:180 (June 10, 2014).
+			     doi:10.1186/1471-2105-15-180
+                '
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met: 
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer. 
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution. 
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+        ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+        ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+The views and conclusions contained in the software and documentation are those
+of the authors and should not be interpreted as representing official policies, 
+either expressed or implied, of the FreeBSD Project.
