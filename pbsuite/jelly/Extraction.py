@@ -185,7 +185,7 @@ class Extraction():
                                 numNodes += 1
                                 #Ensure we don't make redundancies
                                 l = [source, target]; l.sort(); source, target = l;
-                                gapName = "%s_%s" % (contigEnd, target)
+                                gapName = "%s_%s" % (source, target)
                                 logging.debug("Writing %s to %s" % (usedRead, gapName))
                                 numReads += 1
                                 outputQueue[gapName].append(inputReads[usedRead].toString(start, end))
