@@ -180,12 +180,12 @@ class Extraction():
                         start, end = trimInfo.start, trimInfo.end
                         # -- If there isn't a single edge, then we need to populate an extender
                         numNodes = 0
-                        for target in self.gapGraph.graph.neighbors(contigEnd):
-                            if "Contig" not in self.gapGraph.graph.edges[contigEnd,target]['evidence'][0]:
+                        for source, target in self.gapGraph.graph.edges(contigEnd):
+                            if "Contig" not in self.gapGraph.graph.edges[source,target]['evidence'][0]:
                                 numNodes += 1
                                 #Ensure we don't make redundancies
                                 l = [source, target]; l.sort(); source, target = l;
-                                gapName = "%s_%s" % (source, target)
+                                gapName = "%s_%s" % (contigEnd, target)
                                 logging.debug("Writing %s to %s" % (usedRead, gapName))
                                 numReads += 1
                                 outputQueue[gapName].append(inputReads[usedRead].toString(start, end))
