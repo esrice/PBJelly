@@ -81,7 +81,7 @@ class Extraction():
             truncNxVer = float('.'.join(networkx.__version__.split('.')[:2]))
             if truncNxVer >= 1.7:
                 try:
-                    inputGml = networkx.read_gml(i, relabel=True)
+                    inputGml = networkx.read_gml(i)
                 except ValueError:
                     logging.warning("GML file %s is empty" % i)
                     continue
@@ -92,16 +92,16 @@ class Extraction():
                 logging.warning("If you get an error here, please report it!!!")
                 inputGml = networkx.read_gml(i)
                            
-            for node in inputGml.nodes_iter():
-                for readName in inputGml.node[node]['extenders'].split(':'):
+            for node in inputGml.nodes:
+                for readName in inputGml.nodes[node]['extenders'].split(':'):
                     if readName == '':
                         continue
                     trimInfo = self.__cleanReadName__(readName)
                     self.gapGraph.add_extend(node, trimInfo.name)
                     self.readSupport[trimInfo.name].append((node, trimInfo))
                     
-            for source, target, evidence in inputGml.edges_iter(data=True):
-                for readName in evidence['evidence'].split(':'):
+            for source, target, evidence in inputGml.edges(data='evidence'):
+                for readName in evidence.split(':'):
                     if readName == '':
                         continue
                     trimInfo = self.__cleanReadName__(readName)
@@ -180,8 +180,8 @@ class Extraction():
                         start, end = trimInfo.start, trimInfo.end
                         # -- If there isn't a single edge, then we need to populate an extender
                         numNodes = 0
-                        for source, target in self.gapGraph.graph.edges(contigEnd):
-                            if "Contig" not in self.gapGraph.graph.edge[source][target]['evidence'][0]:
+                        for target in self.gapGraph.graph.neighbors(contigEnd):
+                            if "Contig" not in self.gapGraph.graph.edges[contigEnd,target]['evidence'][0]:
                                 numNodes += 1
                                 #Ensure we don't make redundancies
                                 l = [source, target]; l.sort(); source, target = l;

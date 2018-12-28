@@ -75,8 +75,8 @@ def mapTails(fq, ref, nproc=1, out="tailmap.sam", useSa=True):
         sa = "-sa " + ref + ".sa"
     else:
         sa = ""
-    cmd = ("blasr %s %s %s -nproc %d -m 4 -bestn 1 -nCandidates 20 -out %s"
-           " -minPctIdentity 75 -sdpTupleSize 6 -noSplitSubreads") \
+    cmd = ("blasr %s %s %s --nproc %d -m 4 --bestn 1 --nCandidates 20 --out %s"
+           " --minPctIdentity 75 --sdpTupleSize 6 --noSplitSubreads") \
            % (fq, ref, sa, nproc, out)
     
     logging.debug(cmd)

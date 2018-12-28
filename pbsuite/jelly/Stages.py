@@ -56,13 +56,13 @@ def mapping(jobDirs, outDir, reference, referenceSa, parameters, extras):
     logging.basicConfig( stream=sys.stderr, level=level, format=logFormat )
     logging.info("Running blasr")
     
-    mappingTemplate = Template("blasr ${fasta} ${ref} ${sa} -m 4 -out ${outFile} ${parameters} ")
+    mappingTemplate = Template("blasr ${fasta} ${ref} ${sa} -m 4 --out ${outFile} ${parameters} ")
     tailTemplate = Template("m4pie.py ${outFile} ${fasta} ${ref} --nproc ${nproc} -i ${extras}")
     
     ret = []
     #sa safety
     if os.path.exists(referenceSa):
-        referenceSa = "-sa " + referenceSa
+        referenceSa = "--sa " + referenceSa
     else:
         logging.critical("Specified reference.sa %s does not exists. Mapping will be slower" % (referenceSa))
         referenceSa = ""
@@ -155,40 +155,51 @@ def assembly(inputDir, gapInfoFn, extras):
         sys.exit(1)
         
     for inputDir in allInputs:
+        # subdirectories of the assembly/ directory each correspond to a single
+        # gap, and are named based on the sequences surrounding the gap, in the
+        # following format:
+        # [contig1].[ca]e[3|5]_[contig2].[cb]e[3|5]
+        # where contig1/2 are ref names (e.g., "ref12345")
+        # I have no idea what ca/cb are. it would be pretty cool if that was
+        # commented, or at least named more than a two-letter variable.
+        # e3/5 is the end of the contig that is adjacent to the gap
         #get The predicted size if exists
         mySize = ""
-        gapName = inputDir.split('/')[-1]
-        if gapName.count('.') > 0:
-            g = gapName.split('_')
-            if len(g) == 1:
-                ref,cnam = g[0].split('.')
-                cn = int(cnam[:-2])
-                if cnam.endswith('e5'):
-                    ca = cn-1
-                    cb = cn
-                elif cnam.endswith('e3'):
-                    ca = cn
-                    cb = cn+1
-                else:
-                    logging.error("Single End Extension is misFormatted for %s" % inputDir)
-                    exit(1)
-                size = gapInfo["%s_%d_%d" % (ref, ca, cb)].length
-                mySize = "-p %d" % (size)
-            elif len(g) == 2:
-                ref,ca = g[0].split('.')
-                ref,cb = g[1].split('.')
-                #Hackey Shack. - effect of sorting node names
-                # to prevent redundancies during graph building
-                ca = int(ca[:-2])
-                cb = int(cb[:-2])
-                j = [ca,cb]
-                j.sort()
-                ca, cb = j
-                size = gapInfo["%s_%d_%d" % (ref, ca, cb)].length
-                mySize = "-p %d" % (size)
-            else:
-                logging.error("Couldn't recreate gapName from refDir for %s" % inputDir)
-                exit(1)
+#        gapName = inputDir.split('/')[-1]
+#        print >> sys.stderr, gapName
+#        if gapName.count('.') > 0:
+#            g = gapName.split('_')
+#            if len(g) == 1:
+#                ref,cnam = g[0].split('.')
+#                cn = int(cnam[:-2])
+#                if cnam.endswith('e5'):
+#                    ca = cn-1
+#                    cb = cn
+#                elif cnam.endswith('e3'):
+#                    ca = cn
+#                    cb = cn+1
+#                else:
+#                    logging.error("Single End Extension is misFormatted for %s" % inputDir)
+#                    exit(1)
+#                size = gapInfo["%s_%d_%d" % (ref, ca, cb)].length
+#                mySize = "-p %d" % (size)
+#            elif len(g) == 2:
+#                splits_a, splits_b = g[0].split('.'), g[1].split('.')
+#                if len(splits_a) == 2 and len(splits_b) == 2:
+#                    ref,ca = splits_a
+#                    ref,cb = splits_b
+#                    #Hackey Shack. - effect of sorting node names
+#                    # to prevent redundancies during graph building
+#                    ca = int(ca[:-2])
+#                    cb = int(cb[:-2])
+#                    j = [ca,cb]
+#                    j.sort()
+#                    ca, cb = j
+#                    size = gapInfo["%s_%d_%d" % (ref, ca, cb)].length
+#                    mySize = "-p %d" % (size)
+#            else:
+#                logging.error("Couldn't recreate gapName from refDir for %s" % inputDir)
+#                exit(1)
         myCommand = command.substitute({"inputDir":inputDir,\
                                         "size":mySize,\
                                         "debug":DEBUG,\

@@ -18,8 +18,8 @@ def blasr(query, target, fmt="5", bestn=20, nCandidates=20, nproc = 1, outname =
     """
     Simple overlapper
     """
-    c = ("blasr %s %s -m %s -bestn %d -nCandidates %d -minMatch 8 -sdpTupleSize 6 -affineAlign "
-                 "-nproc %d -noSplitSubreads -out %s -minPctIdentity 60 -minReadLength 5") % \
+    c = ("blasr %s %s -m %s --bestn %d --nCandidates %d --minMatch 8 --sdpTupleSize 6 --affineAlign "
+                 "--nproc %d --noSplitSubreads --out %s --minPctSimilarity 60 --minReadLength 5") % \
                  (query, target, fmt, bestn, nCandidates, nproc, outname)
     logging.debug(c)
     r,o,e = exe(c)

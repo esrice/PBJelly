@@ -375,16 +375,16 @@ class GapGraph():
         """
         fout = open(fileName,'w')
         newGraph = copy.deepcopy(self.graph)
-        for node in newGraph.nodes_iter():
-            if len(newGraph.node[node]['extenders']) > 0:
-                if newGraph.node[node].has_key('extenders'):
+        for node in newGraph.nodes:
+            if len(newGraph.nodes[node]['extenders']) > 0:
+                if newGraph.nodes[node].has_key('extenders'):
                     fout.write("extend\t%s\t%s\n" % (node, \
-                        "::".join(newGraph.node[node]['extenders'])))
-        for edgeA, edgeB in newGraph.edges_iter():
+                        "::".join(newGraph.nodes[node]['extenders'])))
+        for edge in newGraph.edges:
             ev = filter(lambda x: x != "Scaffold" and x != "Contig", \
-                    newGraph[edgeA][edgeB]['evidence'])
+                    newGraph.edges[edge]['evidence'])
             if len(ev) > 0:
-                fout.write("evidence\t%s\t%s\t%s\n" % (edgeA, edgeB, "::".join(ev)))
+                fout.write("evidence\t%s\t%s\t%s\n" % (edge[0], edge[1], "::".join(ev)))
         
         fout.close()
         
@@ -408,14 +408,14 @@ class GapGraph():
         if spanOnly, we won't write extenders evidence
         """
         newGraph = copy.deepcopy(self.graph)
-        for node in newGraph.nodes_iter():
+        for node in newGraph.nodes:
             if spanOnly:
-                newGraph.node[node]['extenders'] = ""
+                newGraph.nodes[node]['extenders'] = ""
             else:
-                newGraph.node[node]['extenders'] = ":".join(newGraph.node[node]['extenders'])
+                newGraph.nodes[node]['extenders'] = ":".join(newGraph.nodes[node]['extenders'])
                 
-        for edge in newGraph.edges_iter():
-            newGraph[edge[0]][edge[1]]['evidence'] = ":".join(newGraph.get_edge_data(*edge)['evidence'])
+        for edge in newGraph.edges:
+            newGraph.edges[edge]['evidence'] = ":".join(newGraph.edges[edge]['evidence'])
         
         write_gml(newGraph, fileName)
       
@@ -431,7 +431,7 @@ class GapGraph():
         if nodeName not in self.graph.node:
             self.graph.add_node(nodeName, extenders=extName)
         else:
-            self.graph.node[nodeName]['extenders'].extend(extName)
+            self.graph.nodes[nodeName]['extenders'].extend(extName)
          
     def add_evidence(self, source, target, readName):
         """
@@ -453,14 +453,14 @@ class GapGraph():
         
         logging.debug("%s gives evidence %s -> %s" % (readName, source, target))
         
-        if source not in self.graph.node:
+        if source not in self.graph.nodes:
             self.graph.add_node(source, extenders=[])
-        if target not in self.graph.node:
+        if target not in self.graph.nodes:
             self.graph.add_node(target, extenders=[])
         
         try:
             l = [source, target]; l.sort(); source, target = l
-            self.graph.edge[source][target]['evidence'].extend(readName)
+            self.graph.edges[source, target]['evidence'].extend(readName)
         except KeyError:#New edge
             self.graph.add_edge(source, target, evidence=readName)
      

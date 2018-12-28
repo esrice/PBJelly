@@ -165,13 +165,12 @@ class FillingMetrics():
         if self.span:
             logging.debug('fill span')
             return FastqEntry(self.gapName, self.data["fillSeq"].lower(), "?"*len(self.data["fillSeq"]))
-        
+       
+        # I took out the gap size prediction feature since scaffolders all just
+        # use arbitrary constants anyway, so this just uses 1000 as a default
+        # - ESR
         if self.predictedGapSize is None:
-            #We can't reduce a gap of unknown size
-            #one would just get the extend seq
-            logging.debug("No predicted gap size")
-            return None
-        
+            self.predictedGapSize = 1000
         gapLen = self.predictedGapSize - self.fillLength
         
         #No improvement at all
@@ -524,16 +523,16 @@ class Collection():
         for myGraph in subG:
             #Break any edge that didn't make a correct assembly
             # or doesn't span (excluding scaffold/contig evidence)
-            for a,b in myGraph.edges():
+            for a, b in myGraph.edges:
                 name = makeFilMetName(a,b)
-                if "Contig" in myGraph.edge[a][b]['evidence']:
+                if "Contig" in myGraph.edges[a, b]['evidence']:
                     if name in self.allMetrics.keys():
                         #circles...
                         del(self.allMetrics[name])
-                elif "Scaffold" in myGraph.edge[a][b]['evidence']:
+                elif "Scaffold" in myGraph.edges[a, b]['evidence']:
                     if name in self.allMetrics.keys():
-                        myGraph.node[a]['trim'] = self.allMetrics[name].getTrim(a)
-                        myGraph.node[b]['trim'] = self.allMetrics[name].getTrim(b)
+                        myGraph.nodes[a]['trim'] = self.allMetrics[name].getTrim(a)
+                        myGraph.nodes[b]['trim'] = self.allMetrics[name].getTrim(b)
                 elif name not in self.allMetrics.keys():
                     logging.debug("Breaking %s due to assembly failure" %  name)
                     myGraph.remove_edge(a, b)
@@ -546,14 +545,14 @@ class Collection():
     
             #Resolving "forked" nodes
             # Usually caused by some repeat. Right now, it's all about the fill quality
-            for node in myGraph.nodes_iter():
-                if len(myGraph.edge[node]) > 2:
+            for node in myGraph.nodes:
+                if len(list(myGraph.neighbors(node))) > 2:
                     best = None
                     bestScoreSpan= 0
                     bestScoreSeqs = 0
                     bestSpanScore = 0
-                    for edge in myGraph.edge[node]:
-                        name = makeFilMetName(node,edge)
+                    for neighbor in myGraph.neighbors(node):
+                        name = makeFilMetName(node, neighbor)
                         if name in self.allMetrics.keys():
                             data = self.allMetrics[name]
                             seq = data.getSequence()
@@ -587,30 +586,30 @@ class Collection():
                         #Again, think I fixed
                         logging.debug("I don't know how this doesn't get set")
                         logging.debug("Node %s" % (node))
-                        logging.debug(json.dumps(myGraph.edge[node], indent=4))
+                        logging.debug(json.dumps(myGraph.neighbors(node), indent=4))
                         
-                    for edge in list(myGraph.edge[node]):
-                        name = makeFilMetName(node, edge)
-                        if "Contig" in myGraph.edge[node][edge]['evidence'] \
-                            or "Scaffold" in myGraph.edge[node][edge]['evidence']:
+                    for neighbor in myGraph.neighbors(node):
+                        name = makeFilMetName(node, neighbor)
+                        if "Contig" in myGraph.edges[node, neighbor]['evidence'] \
+                            or "Scaffold" in myGraph.edges[node, neighbor]['evidence']:
                             pass
                         elif name != best:
                             logging.debug("Removed edge %s" % name)
-                            myGraph.remove_edge(node,edge)
+                            myGraph.remove_edge(node, neighbor)
                 
                 #add trim everywhere--everything left is either with or without metrics
-                for edge in myGraph.edge[node]:
-                    if "Contig" in myGraph.edge[node][edge]['evidence']:
+                for neighbor in myGraph.neighbors(node):
+                    if "Contig" in myGraph.edges[node, neighbor]['evidence']:
                         continue
-                    name = makeFilMetName(node,edge)
+                    name = makeFilMetName(node, neighbor)
                     if name not in self.allMetrics.keys():
-                        myGraph.node[node]['trim'] = 0
-                        myGraph.node[edge]['trim'] = 0
+                        myGraph.nodes[node]['trim'] = 0
+                        myGraph.nodes[neighbor]['trim'] = 0
                         continue
-                    myGraph.node[node]['trim'] = self.allMetrics[name].getTrim(node)
-                    myGraph.node[edge]['trim'] = self.allMetrics[name].getTrim(edge)
-                if node in self.allMetrics.keys() and 'trim' not in myGraph.node[node].keys():
-                    myGraph.node[node]['trim'] = self.allMetrics[node].getTrim(node)
+                    myGraph.nodes[node]['trim'] = self.allMetrics[name].getTrim(node)
+                    myGraph.nodes[neighbor]['trim'] = self.allMetrics[name].getTrim(neighbor)
+                if node in self.allMetrics.keys() and 'trim' not in myGraph.nodes[node].keys():
+                    myGraph.nodes[node]['trim'] = self.allMetrics[node].getTrim(node)
                     
             #Getting the contig paths
             for i,s in enumerate(nx.connected_component_subgraphs(myGraph)):
@@ -623,8 +622,8 @@ class Collection():
                     ends = nx.periphery(s)#Singletons...
                 except AttributeError:
                     logging.debug("Weird error!")
-                    logging.debug("Nodes " + json.dumps(myGraph.node))
-                    logging.debug("edges " + json.dumps(myGraph.edge))
+                    logging.debug("Nodes " + json.dumps(myGraph.nodes))
+                    logging.debug("edges " + json.dumps(myGraph.edges))
                     logging.debug("types " + str(type(s)) + " " + str(i) + " " + str(type(i)))
                     logging.debug("Trying again??")
                     ends = nx.periphery(s)
@@ -634,9 +633,9 @@ class Collection():
                     worstScoreSpan = 0
                     worstScoreSeqs = 0
                     worstEdge = None
-                    for a,b in s.edges():
-                        if "Contig" in myGraph.edge[a][b]['evidence'] \
-                           or "Scaffold" in myGraph.edge[a][b]['evidence']:
+                    for a,b in s.edges:
+                        if "Contig" in myGraph.edges[a, b]['evidence'] \
+                           or "Scaffold" in myGraph.edges[a, b]['evidence']:
                             continue
                         
                         logging.debug( "HERE" )
@@ -667,7 +666,7 @@ class Collection():
                 try:
                     a,b = nx.periphery(s)
                 except ValueError:
-                    logging.error("Graph doesn't have ends. Check it's repeats in collectionErr.gml")
+                    logging.error("Graph doesn't have ends. Check its repeats in collectionErr.gml")
                     logging.error(nx.periphery(s))
                     nx.write_gml(s, "collectionError.gml")
                     exit(1)
@@ -687,11 +686,11 @@ class Collection():
         logging.debug("who? %s %s" % (nodeA, nodeB))
         
         try:
-            trimA = graph.node[nodeA]['trim']
+            trimA = graph.nodes[nodeA]['trim']
         except KeyError:
             trimA = 0
         try:
-            trimB = graph.node[nodeB]['trim']
+            trimB = graph.nodes[nodeB]['trim']
         except KeyError:
             trimB = 0
 
@@ -774,7 +773,7 @@ class Collection():
                 logging.debug("Moving from %s to %s (p=%d)" % (nodeA, nodeB, pFlip))
                 name = makeFilMetName(nodeA, nodeB)
                 #Existing sequence -- put in A
-                if "Contig" in graph.edge[nodeA][nodeB]['evidence']:
+                if "Contig" in graph.edges[nodeA, nodeB]['evidence']:
                     logging.debug("contig")
                     #need to output the contig seq
                     #Trim Note 1
@@ -787,7 +786,7 @@ class Collection():
                     curQual.append(seq.qual)
                     liftTracker.append((name, strand, len(seq.seq)))
                 #We have to, at the very least, keep a gap in the sequence
-                elif "Scaffold" in graph.edge[nodeA][nodeB]['evidence'] and \
+                elif "Scaffold" in graph.edges[nodeA, nodeB]['evidence'] and \
                                 name not in self.allMetrics.keys():
                     logging.debug("unimproved gap")
                     #keep mat orientation the same
@@ -799,7 +798,7 @@ class Collection():
                     curFasta.append("N"*gapSize)
                     curQual.append("!"*gapSize)
                     liftTracker.append((name, '?', gapSize))
-                elif "Scaffold" in graph.edge[nodeA][nodeB]['evidence'] and \
+                elif "Scaffold" in graph.edges[nodeA, nodeB]['evidence'] and \
                                 name in self.allMetrics.keys():
                     logging.debug("improved gap")
                     data = self.allMetrics[name]

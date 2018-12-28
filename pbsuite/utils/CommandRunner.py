@@ -107,6 +107,7 @@ class CommandRunner():
                             os.path.join(wDir, id + ("_chunk%d.out" % chunk)), \
                             os.path.join(wDir, id + ("_chunk%d.err" % chunk)))
             cmd = self.buildCommand(submit)
+            #print >> sys.stderr, cmd
             outputRet.append(exe(cmd))
             
         return outputRet
