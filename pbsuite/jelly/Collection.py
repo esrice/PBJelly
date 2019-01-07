@@ -523,6 +523,7 @@ class Collection():
         for myGraph in subG:
             #Break any edge that didn't make a correct assembly
             # or doesn't span (excluding scaffold/contig evidence)
+            edges_to_remove = []
             for a, b in myGraph.edges:
                 name = makeFilMetName(a,b)
                 if "Contig" in myGraph.edges[a, b]['evidence']:
@@ -535,13 +536,17 @@ class Collection():
                         myGraph.nodes[b]['trim'] = self.allMetrics[name].getTrim(b)
                 elif name not in self.allMetrics.keys():
                     logging.debug("Breaking %s due to assembly failure" %  name)
-                    myGraph.remove_edge(a, b)
+                    edges_to_remove.append((a, b))
                 elif not self.allMetrics[name].span:
                     logging.debug("Breaking %s due to non-span" %  name)
-                    myGraph.remove_edge(a, b)
+                    edges_to_remove.append((a, b))
                 elif self.allMetrics[name].isSelfCircle:
                     logging.debug("Breaking %s due to self-circularity" % name)
-                    myGraph.remove_edge(a, b)
+                    edges_to_remove.append((a, b))
+
+            # can't remove edges during iteration over edges, so do that here
+            for a, b in edges_to_remove:
+                myGraph.remove_edge(a, b)
     
             #Resolving "forked" nodes
             # Usually caused by some repeat. Right now, it's all about the fill quality
@@ -588,6 +593,7 @@ class Collection():
                         logging.debug("Node %s" % (node))
                         logging.debug(json.dumps(myGraph.neighbors(node), indent=4))
                         
+                    edges_to_remove = []
                     for neighbor in myGraph.neighbors(node):
                         name = makeFilMetName(node, neighbor)
                         if "Contig" in myGraph.edges[node, neighbor]['evidence'] \
@@ -595,7 +601,9 @@ class Collection():
                             pass
                         elif name != best:
                             logging.debug("Removed edge %s" % name)
-                            myGraph.remove_edge(node, neighbor)
+                            edges_to_remove.append((node, neighbor))
+                    for a, b in edges_to_remove:
+                        myGraph.remove_edge(a, b)
                 
                 #add trim everywhere--everything left is either with or without metrics
                 for neighbor in myGraph.neighbors(node):
