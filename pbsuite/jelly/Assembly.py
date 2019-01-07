@@ -475,8 +475,7 @@ def getSubSeqs(alignmentFile, readsFile, sameStrand, seeds, predictedGapSize, ma
         ssfout.close()
         ssfout = ssfout.name
 
-    #if stats["extendF1Count"] > 0:
-    if bestF1E is not None:
+    if stats["extendF1Count"] > 0 and bestF1E is not None:
         stats["avgExtF1Bases"] = stats["avgExtF1Bases"]/stats["extendF1Count"]
         logging.info("estimated flank 1 extend len %d" % (stats["avgExtF1Bases"]))
         #write seed
@@ -489,8 +488,7 @@ def getSubSeqs(alignmentFile, readsFile, sameStrand, seeds, predictedGapSize, ma
         f1sfout.close()
         f1sfout = f1sfout.name
         
-    #if stats["extendF2Count"] > 0:
-    if bestF2E is not None:
+    if stats["extendF2Count"] > 0 and bestF2E is not None:
         stats["avgExtF2Bases"] = stats["avgExtF2Bases"]/stats["extendF2Count"]
         logging.info("estimated flank 2 extend len %d" % (stats["avgExtF2Bases"]))
         #write seed
@@ -505,6 +503,7 @@ def getSubSeqs(alignmentFile, readsFile, sameStrand, seeds, predictedGapSize, ma
     
     #all of the info I need to return... refactor later and create useful objects
     #ret = nt(stats, sfout, f1fout, f2fout, ssfout, f1sfout, f2sfout)
+    # returns a NamedTuple with fields stats spanSeed flank1Seed flank2Seed
     ret = nt(stats, ssfout, f1sfout, f2sfout)
     #seeds writing
     return ret
@@ -535,7 +534,9 @@ def buildFillSeq(data, inputReads, args):
                 data.stats["contribBases"] = con.contribBases
                 data.stats["fillBases"] = con.fillBases
                 return 
-        else:
+        # this was originally just an 'else', but I was getting NoneType
+        # errors, so this should keep that from happening -ESR
+        elif data.spanSeed is not None:
             logging.info("no mapping... picking span seq")
             sequence = FastaFile(data.spanSeed).values()[0]
             data.stats["fillSeq"] = sequence
@@ -573,7 +574,7 @@ def buildFillSeq(data, inputReads, args):
                 data.stats["contribBases"] += con.contribBases
                 data.stats["fillBases"] += con.fillBases
                 flank1Success = True
-        else:
+        elif data.flank1Seed is not None:
             logging.info("no mapping... picking f1 seq")
             sequence = FastaFile(data.flank1Seed).values()[0]
             data.stats["extendSeq1"] = sequence
@@ -599,7 +600,7 @@ def buildFillSeq(data, inputReads, args):
                 data.stats["contribBases"] += con.contribBases
                 data.stats["fillBases"] += con.fillBases
                 flank2Success = True
-        else:
+        elif data.flank2Seed is not None:
             logging.info("no mapping... picking f1 seq")
             sequence = FastaFile(data.flank2Seed).values()[0]
             data.stats["extendSeq2"] = sequence
